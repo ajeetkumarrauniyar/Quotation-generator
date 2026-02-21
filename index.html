@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quotation Generator – HB Machines Style</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Source+Sans+3:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  :root {
+    --blue: #1a3a6b;
+    --accent: #2563eb;
+    --light: #e8f0fe;
+    --border: #cbd5e1;
+    --text: #1e293b;
+    --muted: #64748b;
+    --red: #dc2626;
+    --green: #16a34a;
+    --bg: #f1f5f9;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    background: var(--blue);
+    color: white;
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,.25);
+  }
+  .topbar h1 { font-family: 'Playfair Display', serif; font-size: 1.4rem; letter-spacing: .5px; }
+  .topbar span { font-size: .85rem; opacity: .75; }
+
+  /* ── LAYOUT ── */
+  .wrapper { max-width: 1200px; margin: 0 auto; padding: 28px 20px; display: grid; grid-template-columns: 340px 1fr; gap: 24px; }
+
+  /* ── FORM PANEL ── */
+  .panel {
+    background: white;
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.08);
+    height: fit-content;
+    position: sticky;
+    top: 72px;
+  }
+  .panel h2 { font-size: 1rem; font-weight: 700; color: var(--blue); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--light); text-transform: uppercase; letter-spacing: .6px; }
+
+  label { display: block; font-size: .78rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px; margin-top: 12px; }
+  input, textarea, select {
+    width: 100%; padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 7px;
+    font-family: inherit; font-size: .9rem; color: var(--text);
+    transition: border-color .2s;
+  }
+  input:focus, textarea:focus, select:focus { outline: none; border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 60px; }
+
+  /* ── SECTION SELECTOR ── */
+  .section-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 10px; }
+  .section-tab {
+    padding: 5px 12px; border-radius: 20px; border: 1.5px solid var(--border);
+    cursor: pointer; font-size: .78rem; font-weight: 600; background: white;
+    color: var(--muted); transition: all .2s;
+  }
+  .section-tab.active { background: var(--blue); color: white; border-color: var(--blue); }
+
+  /* ── ITEM FORM ── */
+  .item-form { background: var(--light); border-radius: 9px; padding: 14px; margin-top: 12px; }
+  .item-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .add-btn {
+    margin-top: 12px; width: 100%; padding: 10px;
+    background: var(--accent); color: white; border: none;
+    border-radius: 8px; cursor: pointer; font-weight: 700; font-size: .9rem;
+    transition: background .2s;
+  }
+  .add-btn:hover { background: var(--blue); }
+
+  /* ── DIVIDER ── */
+  .sep { border: none; border-top: 1.5px dashed var(--border); margin: 18px 0; }
+
+  /* ── ACTION BTNS ── */
+  .actions { display: flex; gap: 10px; margin-top: 16px; }
+  .btn-pdf {
+    flex: 1; padding: 11px; background: var(--green); color: white;
+    border: none; border-radius: 8px; cursor: pointer; font-weight: 700;
+    font-size: .9rem; transition: background .2s;
+  }
+  .btn-pdf:hover { background: #15803d; }
+  .btn-reset {
+    padding: 11px 16px; background: white; color: var(--red);
+    border: 1.5px solid var(--red); border-radius: 8px; cursor: pointer;
+    font-weight: 700; font-size: .85rem;
+  }
+
+  /* ── PREVIEW ── */
+  .preview-wrap { position: relative; }
+  .preview-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: .78rem; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .7px; margin-bottom: 10px;
+  }
+  .preview-label::after { content: ''; flex: 1; height: 1.5px; background: var(--border); }
+
+  /* ── QUOTATION DOCUMENT ── */
+  #quotation {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 16px rgba(0,0,0,.1);
+    overflow: hidden;
+    font-size: 11.5px;
+    line-height: 1.5;
+  }
+
+  .q-header {
+    background: var(--blue);
+    color: white;
+    padding: 28px 36px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .q-logo { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; letter-spacing: 1px; }
+  .q-logo span { display: block; font-family: 'Source Sans 3', sans-serif; font-size: .7rem; font-weight: 400; opacity: .8; margin-top: 2px; letter-spacing: .5px; }
+  .q-meta { text-align: right; font-size: .75rem; opacity: .85; line-height: 1.7; }
+  .q-meta strong { font-size: .9rem; display: block; margin-bottom: 2px; }
+
+  .q-subject {
+    background: var(--light);
+    padding: 14px 36px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    border-bottom: 2px solid var(--accent);
+  }
+  .q-subject-item label { font-size: .68rem; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .5px; display: block; }
+  .q-subject-item span { font-size: .85rem; font-weight: 600; color: var(--blue); }
+
+  .q-body { padding: 20px 36px; }
+
+  .q-to { margin-bottom: 16px; }
+  .q-to strong { font-size: .8rem; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 4px; }
+  .q-to-name { font-size: 1.1rem; font-weight: 700; color: var(--blue); }
+  .q-to-detail { font-size: .8rem; color: var(--muted); }
+
+  /* Section table */
+  .q-section { margin-bottom: 20px; }
+  .q-section-title {
+    background: var(--blue);
+    color: white;
+    padding: 7px 12px;
+    font-weight: 700;
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    border-radius: 4px 4px 0 0;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: #dbeafe; }
+  th { padding: 7px 10px; text-align: left; font-size: .72rem; text-transform: uppercase; color: var(--blue); letter-spacing: .4px; border-bottom: 2px solid var(--accent); }
+  th:last-child, td:last-child { text-align: right; }
+  th:nth-child(3), td:nth-child(3),
+  th:nth-child(4), td:nth-child(4) { text-align: right; }
+  td { padding: 7px 10px; font-size: .82rem; border-bottom: 1px solid #f1f5f9; }
+  tr:hover td { background: #f8fafc; }
+  .td-desc { max-width: 260px; }
+  .td-small { color: var(--muted); font-size: .73rem; display: block; margin-top: 2px; }
+  .section-total td {
+    background: #dbeafe; font-weight: 700; color: var(--blue);
+    font-size: .84rem; border-top: 2px solid var(--accent);
+  }
+
+  /* GST summary */
+  .q-summary {
+    margin-top: 16px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .summary-box {
+    width: 320px;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .summary-row { display: flex; justify-content: space-between; padding: 7px 14px; font-size: .83rem; }
+  .summary-row:not(:last-child) { border-bottom: 1px solid #f1f5f9; }
+  .summary-row.grand {
+    background: var(--blue); color: white; font-weight: 700;
+    font-size: .95rem;
+  }
+  .summary-row.gst-row { background: #fefce8; }
+
+  .q-terms { margin-top: 20px; padding-top: 14px; border-top: 1.5px dashed var(--border); }
+  .q-terms h4 { font-size: .78rem; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .q-terms ul { padding-left: 16px; }
+  .q-terms li { font-size: .76rem; color: var(--muted); margin-bottom: 3px; }
+
+  .q-footer {
+    background: var(--blue); color: white;
+    padding: 14px 36px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: .75rem; opacity: .95;
+  }
+  .q-footer strong { font-size: .9rem; display: block; }
+
+  /* Delete row btn */
+  .del-btn {
+    background: none; border: none; cursor: pointer; color: var(--red);
+    font-size: .85rem; padding: 2px 6px; border-radius: 4px;
+    transition: background .2s;
+  }
+  .del-btn:hover { background: #fef2f2; }
+
+  /* no-print */
+  @media print { .del-btn { display: none; } }
+
+  /* REMOVE from PDF */
+  .no-pdf { display: block; }
+
+  /* empty state */
+  .empty-state { text-align: center; padding: 48px 20px; color: var(--muted); }
+  .empty-state svg { margin-bottom: 12px; opacity: .3; }
+
+  .badge { display: inline-block; padding: 2px 7px; border-radius: 10px; font-size: .68rem; font-weight: 700; background: #dbeafe; color: var(--blue); margin-left: 6px; }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>⚙ Quotation Generator</h1>
+  <span>Industrial / Machinery Style · PDF Export Ready</span>
+</div>
+
+<div class="wrapper">
+
+  <!-- LEFT PANEL -->
+  <aside class="panel">
+
+    <!-- Company Info -->
+    <h2>🏢 Company Details</h2>
+    <label>Company Name</label>
+    <input id="co-name" value="HB MACHINES" />
+    <label>Address</label>
+    <textarea id="co-addr" rows="2">Vill. Kahanpura, Amloh, District Fatehgarh Sahib (Punjab) India</textarea>
+    <label>Phone / Email</label>
+    <input id="co-contact" value="+91-9878406868 | hbmachinesindia@gmail.com" />
+    <label>GSTIN</label>
+    <input id="co-gstin" value="03AJIPS9208D1ZA" />
+
+    <hr class="sep">
+
+    <!-- Buyer Info -->
+    <h2>👤 Buyer Details</h2>
+    <label>Buyer Name</label>
+    <input id="b-name" value="Mr. Akash" />
+    <label>Location</label>
+    <input id="b-loc" value="Bihar, India" />
+    <label>Mobile</label>
+    <input id="b-mob" value="+91-9835226876" />
+
+    <hr class="sep">
+
+    <!-- Quotation Meta -->
+    <h2>📋 Quotation Info</h2>
+    <label>Ref No.</label>
+    <input id="ref" value="HBM/02/2026/172/SS" />
+    <label>Date</label>
+    <input id="q-date" type="date" />
+    <label>Subject / Plant Name</label>
+    <input id="q-subj" value="Cattle Feed Plant" />
+    <label>Capacity</label>
+    <input id="q-cap" value="1–2 TPH" />
+    <label>Power Required</label>
+    <input id="q-power" value="120.5 HP (90 KW) Approx." />
+    <label>Space Required</label>
+    <input id="q-space" value="75' × 15' × 30' approx." />
+
+    <hr class="sep">
+
+    <!-- Add Item -->
+    <h2>➕ Add Line Item</h2>
+
+    <label>Section</label>
+    <div class="section-tabs" id="section-tabs">
+      <div class="section-tab active" data-sec="Grinding Section" onclick="selectSection(this)">Grinding</div>
+      <div class="section-tab" data-sec="Mixing Section" onclick="selectSection(this)">Mixing</div>
+      <div class="section-tab" data-sec="Pelleting Section" onclick="selectSection(this)">Pelleting</div>
+      <div class="section-tab" data-sec="Cooling Section" onclick="selectSection(this)">Cooling</div>
+      <div class="section-tab" data-sec="Installation" onclick="selectSection(this)">Install</div>
+      <div class="section-tab" data-sec="Accessories" onclick="selectSection(this)">Accessories</div>
+      <div class="section-tab" data-sec="Custom" onclick="selectSection(this)">+ Custom</div>
+    </div>
+    <div id="custom-sec-wrap" style="display:none; margin-top:6px;">
+      <input id="custom-sec-name" placeholder="Section name..." />
+    </div>
+
+    <div class="item-form">
+      <label>Description</label>
+      <input id="i-desc" placeholder="e.g. Hammer Mill Bucket Elevator" />
+      <label>Model / Spec (optional)</label>
+      <input id="i-spec" placeholder="e.g. Model HBM A1, 15HP" />
+      <div class="row">
+        <div>
+          <label>Qty</label>
+          <input id="i-qty" type="number" value="1" min="1" />
+        </div>
+        <div>
+          <label>Unit Price (₹)</label>
+          <input id="i-price" type="number" placeholder="0" />
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label>HP (optional)</label>
+          <input id="i-hp" placeholder="e.g. 15 HP" />
+        </div>
+        <div>
+          <label>GST Rate</label>
+          <select id="i-gst">
+            <option value="5">5% (Machinery)</option>
+            <option value="18" selected>18% (Motors/Electrical)</option>
+            <option value="12">12%</option>
+            <option value="0">0% (Exempt)</option>
+          </select>
+        </div>
+      </div>
+      <button class="add-btn" onclick="addItem()">+ Add to Quotation</button>
+    </div>
+
+    <hr class="sep">
+
+    <h2>📝 Terms (optional)</h2>
+    <textarea id="terms" rows="4" placeholder="Enter payment terms, delivery, warranty...">Payment: 60% advance, 40% before dispatch.
+Delivery: 45–60 days.
+Warranty: 1 year on manufacturing defects.
+Validity: 30 days from date of quotation.</textarea>
+
+    <hr class="sep">
+    <div class="actions">
+      <button class="btn-pdf" onclick="exportPDF()">⬇ Export PDF</button>
+      <button class="btn-reset" onclick="resetAll()">Reset</button>
+    </div>
+
+  </aside>
+
+  <!-- RIGHT: PREVIEW -->
+  <main class="preview-wrap">
+    <div class="preview-label">Live Preview</div>
+
+    <div id="quotation">
+
+      <!-- HEADER -->
+      <div class="q-header">
+        <div>
+          <div class="q-logo" id="p-coname">HB MACHINES
+            <span id="p-coaddr">Vill. Kahanpura, Amloh, District Fatehgarh Sahib (Punjab) India</span>
+          </div>
+          <div style="font-size:.75rem; margin-top:6px; opacity:.85;" id="p-cocontact">+91-9878406868 | hbmachinesindia@gmail.com</div>
+          <div style="font-size:.7rem; opacity:.7; margin-top:2px;" id="p-cogstin">GSTIN: 03AJIPS9208D1ZA</div>
+        </div>
+        <div class="q-meta">
+          <strong>QUOTATION</strong>
+          <div>Ref No: <b id="p-ref">HBM/02/2026/172/SS</b></div>
+          <div>Date: <b id="p-date">—</b></div>
+        </div>
+      </div>
+
+      <!-- SUBJECT BAR -->
+      <div class="q-subject">
+        <div class="q-subject-item"><label>Subject</label><span id="p-subj">Cattle Feed Plant</span></div>
+        <div class="q-subject-item"><label>Capacity</label><span id="p-cap">1–2 TPH</span></div>
+        <div class="q-subject-item"><label>Power Req.</label><span id="p-power">120.5 HP (90 KW)</span></div>
+        <div class="q-subject-item"><label>Space Req.</label><span id="p-space">75' × 15' × 30'</span></div>
+      </div>
+
+      <!-- BODY -->
+      <div class="q-body">
+
+        <!-- TO -->
+        <div class="q-to">
+          <strong>Bill To</strong>
+          <div class="q-to-name" id="p-bname">Mr. Akash</div>
+          <div class="q-to-detail" id="p-bloc">Bihar, India</div>
+          <div class="q-to-detail" id="p-bmob">+91-9835226876</div>
+        </div>
+
+        <!-- SECTIONS TABLE -->
+        <div id="sections-container">
+          <div class="empty-state">
+            <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <p>Add items from the left panel to build your quotation</p>
+          </div>
+        </div>
+
+        <!-- SUMMARY -->
+        <div class="q-summary" id="q-summary" style="display:none;">
+          <div class="summary-box">
+            <div class="summary-row"><span>Subtotal (excl. GST)</span><span id="s-subtotal">₹0</span></div>
+            <div class="summary-row gst-row"><span>GST (blended)</span><span id="s-gst">₹0</span></div>
+            <div class="summary-row grand"><span>GRAND TOTAL</span><span id="s-grand">₹0</span></div>
+          </div>
+        </div>
+
+        <!-- TERMS -->
+        <div class="q-terms" id="p-terms-sec" style="display:none;">
+          <h4>Terms &amp; Conditions</h4>
+          <ul id="p-terms-list"></ul>
+        </div>
+
+      </div>
+
+      <!-- FOOTER -->
+      <div class="q-footer">
+        <div><strong id="fp-coname">HB MACHINES</strong><span id="fp-coaddr">Khanna, Punjab – 147301</span></div>
+        <div style="text-align:right;">For <strong id="fp-coname2">HB MACHINES</strong><div style="margin-top:18px; border-top:1px solid rgba(255,255,255,.4); padding-top:6px;">Authorised Signatory</div></div>
+      </div>
+
+    </div><!-- #quotation -->
+  </main>
+</div>
+
+<script>
+// ── STATE ──
+let items = [];       // { sec, desc, spec, qty, price, hp, gst }
+let activeSec = 'Grinding Section';
+
+// Set default date
+document.getElementById('q-date').value = new Date().toISOString().split('T')[0];
+
+// ── LIVE BIND ──
+const binds = [
+  ['co-name',   ['p-coname','fp-coname','fp-coname2']],
+  ['co-addr',   ['p-coaddr','fp-coaddr']],
+  ['co-contact',['p-cocontact']],
+  ['co-gstin',  ['p-cogstin']],
+  ['b-name',    ['p-bname']],
+  ['b-loc',     ['p-bloc']],
+  ['b-mob',     ['p-bmob']],
+  ['ref',       ['p-ref']],
+  ['q-subj',    ['p-subj']],
+  ['q-cap',     ['p-cap']],
+  ['q-power',   ['p-power']],
+  ['q-space',   ['p-space']],
+];
+binds.forEach(([src, dests]) => {
+  document.getElementById(src).addEventListener('input', function() {
+    dests.forEach(d => { const el = document.getElementById(d); if(el) el.textContent = this.value; });
+  });
+});
+
+document.getElementById('q-date').addEventListener('change', function() {
+  const d = new Date(this.value);
+  document.getElementById('p-date').textContent = d.toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'});
+});
+document.getElementById('q-date').dispatchEvent(new Event('change'));
+
+document.getElementById('terms').addEventListener('input', renderTerms);
+
+// ── SECTION SELECT ──
+function selectSection(el) {
+  document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  activeSec = el.dataset.sec;
+  document.getElementById('custom-sec-wrap').style.display = activeSec === 'Custom' ? 'block' : 'none';
+}
+
+// ── ADD ITEM ──
+function addItem() {
+  const sec = activeSec === 'Custom'
+    ? (document.getElementById('custom-sec-name').value.trim() || 'Custom Section')
+    : activeSec;
+  const desc = document.getElementById('i-desc').value.trim();
+  if (!desc) { alert('Please enter a description.'); return; }
+  const price = parseFloat(document.getElementById('i-price').value) || 0;
+  const qty   = parseInt(document.getElementById('i-qty').value) || 1;
+  items.push({
+    id: Date.now(),
+    sec,
+    desc,
+    spec:  document.getElementById('i-spec').value.trim(),
+    qty,
+    price,
+    hp:    document.getElementById('i-hp').value.trim(),
+    gst:   parseInt(document.getElementById('i-gst').value),
+  });
+  document.getElementById('i-desc').value  = '';
+  document.getElementById('i-spec').value  = '';
+  document.getElementById('i-price').value = '';
+  document.getElementById('i-hp').value    = '';
+  renderQuotation();
+}
+
+// ── DELETE ITEM ──
+function delItem(id) {
+  items = items.filter(i => i.id !== id);
+  renderQuotation();
+}
+
+// ── RENDER ──
+function renderQuotation() {
+  const container = document.getElementById('sections-container');
+  if (!items.length) {
+    container.innerHTML = `<div class="empty-state"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><p>Add items from the left panel to build your quotation</p></div>`;
+    document.getElementById('q-summary').style.display = 'none';
+    return;
+  }
+
+  // Group by section
+  const groups = {};
+  items.forEach(item => {
+    if (!groups[item.sec]) groups[item.sec] = [];
+    groups[item.sec].push(item);
+  });
+
+  let html = '';
+  let srNo = 1;
+  let totalBase = 0, totalGstAmt = 0;
+
+  Object.entries(groups).forEach(([sec, rows]) => {
+    let secBase = 0, secGst = 0;
+    let rowsHtml = '';
+    rows.forEach(r => {
+      const base = r.qty * r.price;
+      const gstAmt = base * r.gst / 100;
+      secBase += base; secGst += gstAmt;
+      rowsHtml += `
+        <tr>
+          <td>${srNo++}</td>
+          <td class="td-desc">${r.desc}${r.spec ? `<span class="td-small">${r.spec}</span>` : ''}${r.hp ? `<span class="badge">${r.hp}</span>` : ''}</td>
+          <td style="text-align:right;">${r.qty}</td>
+          <td style="text-align:right;">₹${fmt(r.price)}</td>
+          <td style="text-align:right;">${r.gst}%</td>
+          <td style="text-align:right; font-weight:600;">₹${fmt(base)}</td>
+          <td class="no-pdf"><button class="del-btn" onclick="delItem(${r.id})">✕</button></td>
+        </tr>`;
+    });
+    totalBase += secBase; totalGstAmt += secGst;
+
+    html += `
+      <div class="q-section">
+        <div class="q-section-title">${sec}</div>
+        <table>
+          <thead><tr>
+            <th style="width:32px;">#</th>
+            <th>Description</th>
+            <th style="text-align:right;">Qty</th>
+            <th style="text-align:right;">Unit Price</th>
+            <th style="text-align:right;">GST</th>
+            <th style="text-align:right;">Total</th>
+            <th class="no-pdf" style="width:30px;"></th>
+          </tr></thead>
+          <tbody>${rowsHtml}</tbody>
+          <tfoot>
+            <tr class="section-total">
+              <td colspan="5" style="text-align:right;">Section Total (excl. GST)</td>
+              <td style="text-align:right;">₹${fmt(secBase)}</td>
+              <td class="no-pdf"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>`;
+  });
+
+  container.innerHTML = html;
+
+  // Summary
+  const grand = totalBase + totalGstAmt;
+  document.getElementById('s-subtotal').textContent = '₹' + fmt(totalBase);
+  document.getElementById('s-gst').textContent      = '₹' + fmt(totalGstAmt);
+  document.getElementById('s-grand').textContent    = '₹' + fmt(grand);
+  document.getElementById('q-summary').style.display = 'flex';
+
+  renderTerms();
+}
+
+function renderTerms() {
+  const raw = document.getElementById('terms').value.trim();
+  const sec = document.getElementById('p-terms-sec');
+  const list = document.getElementById('p-terms-list');
+  if (!raw) { sec.style.display = 'none'; return; }
+  const lines = raw.split('\n').filter(l => l.trim());
+  list.innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+  sec.style.display = 'block';
+}
+
+function fmt(n) {
+  return Math.round(n).toLocaleString('en-IN');
+}
+
+function resetAll() {
+  if (!confirm('Reset all items?')) return;
+  items = [];
+  renderQuotation();
+}
+
+// ── PDF EXPORT ──
+function exportPDF() {
+  // Hide delete buttons
+  document.querySelectorAll('.del-btn').forEach(b => b.style.display = 'none');
+  document.querySelectorAll('.no-pdf').forEach(b => b.style.display = 'none');
+
+  const el = document.getElementById('quotation');
+  const opt = {
+    margin:       [6, 6, 6, 6],
+    filename:     `Quotation_${document.getElementById('ref').value || 'Q001'}.pdf`,
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2, useCORS: true },
+    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+  };
+
+  html2pdf().set(opt).from(el).save().then(() => {
+    document.querySelectorAll('.del-btn').forEach(b => b.style.display = '');
+    document.querySelectorAll('.no-pdf').forEach(b => b.style.display = '');
+  });
+}
+
+// Initial render
+renderTerms();
+</script>
+</body>
+</html>
