@@ -181,6 +181,15 @@
     background: #dbeafe; font-weight: 700; color: var(--blue);
     font-size: .84rem; border-top: 2px solid var(--accent);
   }
+  .editable-price {
+    display: inline-block;
+    min-width: 40px;
+    outline: none;
+  }
+  .editable-price:focus {
+    background: #eef2ff;
+    border-radius: 3px;
+  }
 
   /* GST summary */
   .q-summary {
@@ -451,6 +460,7 @@ let activeSec = 'Grinding Section';
 
 // Local storage key for basic details
 const BASIC_DETAILS_KEY = 'quotation_basic_details_v1';
+const ITEMS_KEY = 'quotation_items_v1';
 
 function saveBasicDetails() {
   try {
@@ -492,11 +502,33 @@ function loadBasicDetails() {
   }
 }
 
+function saveItemsToStorage() {
+  try {
+    localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
+  } catch (e) {
+    // Ignore storage errors
+  }
+}
+
+function loadItemsFromStorage() {
+  try {
+    const raw = localStorage.getItem(ITEMS_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed)) {
+      items = parsed;
+    }
+  } catch (e) {
+    // Ignore invalid JSON
+  }
+}
+
 // Set default date
 document.getElementById('q-date').value = new Date().toISOString().split('T')[0];
 
-// Load saved basic details (if any)
+// Load saved data (if any)
 loadBasicDetails();
+loadItemsFromStorage();
 
 // ── LIVE BIND ──
 const binds = [
@@ -561,12 +593,14 @@ function addItem() {
   document.getElementById('i-spec').value  = '';
   document.getElementById('i-price').value = '';
   document.getElementById('i-hp').value    = '';
+  saveItemsToStorage();
   renderQuotation();
 }
 
 // ── DELETE ITEM ──
 function delItem(id) {
   items = items.filter(i => i.id !== id);
+  saveItemsToStorage();
   renderQuotation();
 }
 
@@ -605,7 +639,15 @@ function renderQuotation() {
           <td>${srNo++}</td>
           <td class="td-desc">${r.desc}${r.spec ? `<span class="td-small">${r.spec}</span>` : ''}${r.hp ? `<span class="badge">${r.hp}</span>` : ''}</td>
           <td style="text-align:right;">${r.qty}</td>
-          <td style="text-align:right;">₹${fmt(r.price)}</td>
+          <td style="text-align:right;">
+            ₹<span
+              class="editable-price"
+              contenteditable="true"
+              data-id="${r.id}"
+              onblur="handlePriceEdit(this)"
+              onkeydown="if(event.key==='Enter'){event.preventDefault(); this.blur();}"
+            >${fmt(r.price)}</span>
+          </td>
           <td style="text-align:right;">${r.gst}%</td>
           <td style="text-align:right; font-weight:600;">₹${fmt(base)}</td>
           <td class="no-pdf"><button class="del-btn" onclick="delItem(${r.id})">✕</button></td>
@@ -676,9 +718,34 @@ function fmt(n) {
   return Math.round(n).toLocaleString('en-IN');
 }
 
+function handlePriceEdit(el) {
+  const id = parseInt(el.dataset.id, 10);
+  if (!id) return;
+
+  const text = el.textContent || '';
+  const numeric = text.replace(/[^\d.]/g, '');
+  const newPrice = parseFloat(numeric);
+
+  const item = items.find(i => i.id === id);
+  if (!item) return;
+
+  if (isNaN(newPrice) || newPrice < 0) {
+    alert('Please enter a valid number for unit price.');
+    // Do not update price; clear the field so user can type again
+    el.textContent = '';
+    el.focus();
+    return;
+  }
+
+  item.price = newPrice;
+  saveItemsToStorage();
+  renderQuotation();
+}
+
 function resetAll() {
   if (!confirm('Do you want to clear all items?')) return;
   items = [];
+  saveItemsToStorage();
   renderQuotation();
 }
 
