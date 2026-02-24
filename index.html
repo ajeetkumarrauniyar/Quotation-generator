@@ -449,8 +449,54 @@ let items = [       // { sec, desc, spec, qty, price, hp, gst }
 ];
 let activeSec = 'Grinding Section';
 
+// Local storage key for basic details
+const BASIC_DETAILS_KEY = 'quotation_basic_details_v1';
+
+function saveBasicDetails() {
+  try {
+    const data = {
+      coName:  document.getElementById('co-name')?.value || '',
+      coAddr:  document.getElementById('co-addr')?.value || '',
+      coContact: document.getElementById('co-contact')?.value || '',
+      coGstin: document.getElementById('co-gstin')?.value || '',
+      bName:   document.getElementById('b-name')?.value || '',
+      bLoc:    document.getElementById('b-loc')?.value || '',
+      bMob:    document.getElementById('b-mob')?.value || '',
+      ref:     document.getElementById('ref')?.value || '',
+      subj:    document.getElementById('q-subj')?.value || '',
+      terms:   document.getElementById('terms')?.value || '',
+    };
+    localStorage.setItem(BASIC_DETAILS_KEY, JSON.stringify(data));
+  } catch (e) {
+    // If local storage is not available, just ignore
+  }
+}
+
+function loadBasicDetails() {
+  try {
+    const raw = localStorage.getItem(BASIC_DETAILS_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data.coName !== undefined)  document.getElementById('co-name').value = data.coName;
+    if (data.coAddr !== undefined)  document.getElementById('co-addr').value = data.coAddr;
+    if (data.coContact !== undefined) document.getElementById('co-contact').value = data.coContact;
+    if (data.coGstin !== undefined) document.getElementById('co-gstin').value = data.coGstin;
+    if (data.bName !== undefined)   document.getElementById('b-name').value = data.bName;
+    if (data.bLoc !== undefined)    document.getElementById('b-loc').value = data.bLoc;
+    if (data.bMob !== undefined)    document.getElementById('b-mob').value = data.bMob;
+    if (data.ref !== undefined)     document.getElementById('ref').value = data.ref;
+    if (data.subj !== undefined)    document.getElementById('q-subj').value = data.subj;
+    if (data.terms !== undefined)   document.getElementById('terms').value = data.terms;
+  } catch (e) {
+    // Ignore invalid JSON
+  }
+}
+
 // Set default date
 document.getElementById('q-date').value = new Date().toISOString().split('T')[0];
+
+// Load saved basic details (if any)
+loadBasicDetails();
 
 // ── LIVE BIND ──
 const binds = [
@@ -469,6 +515,7 @@ binds.forEach(([src, dests]) => {
   if (!srcEl) return;
   srcEl.addEventListener('input', function() {
     dests.forEach(d => { const el = document.getElementById(d); if(el) el.textContent = this.value; });
+    saveBasicDetails();
   });
 });
 
@@ -478,7 +525,10 @@ document.getElementById('q-date').addEventListener('change', function() {
 });
 document.getElementById('q-date').dispatchEvent(new Event('change'));
 
-document.getElementById('terms').addEventListener('input', renderTerms);
+document.getElementById('terms').addEventListener('input', function () {
+  renderTerms();
+  saveBasicDetails();
+});
 
 // ── SECTION SELECT ──
 function selectSection(el) {
@@ -634,23 +684,38 @@ function resetAll() {
 
 // ── PDF EXPORT ──
 function exportPDF() {
-  // Hide delete buttons
+  const quotation = document.getElementById('quotation');
+  if (!quotation) return;
+
+  // Remember scroll so we can restore after export
+  const originalScrollY = window.scrollY || window.pageYOffset || 0;
+
+  // Make sure the quotation is fully in view for html2canvas
+  quotation.scrollIntoView();
+  window.scrollTo(0, quotation.offsetTop || 0);
+
+  // Hide controls that should not appear in the PDF
   document.querySelectorAll('.del-btn').forEach(b => b.style.display = 'none');
   document.querySelectorAll('.no-pdf').forEach(b => b.style.display = 'none');
 
-  const el = document.getElementById('quotation');
   const opt = {
     margin:       [6, 6, 6, 6],
     filename:     `Quotation_${document.getElementById('ref').value || 'Q001'}.pdf`,
     image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2, useCORS: true },
+    html2canvas:  {
+      scale: 2,
+      useCORS: true,
+      scrollY: 0
+    },
     jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+    pagebreak:    { mode: ['css', 'legacy'] }
   };
 
-  html2pdf().set(opt).from(el).save().then(() => {
+  html2pdf().set(opt).from(quotation).save().then(() => {
+    // Restore controls and scroll position
     document.querySelectorAll('.del-btn').forEach(b => b.style.display = '');
     document.querySelectorAll('.no-pdf').forEach(b => b.style.display = '');
+    window.scrollTo(0, originalScrollY);
   });
 }
 
