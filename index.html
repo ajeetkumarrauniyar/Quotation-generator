@@ -239,8 +239,8 @@
 <body>
 
 <div class="topbar">
-  <h1>⚙ Quotation Generator</h1>
-  <span>Industrial / Machinery Style · PDF Export Ready</span>
+  <h1>Quotation Generator</h1>
+  <span>Create a clear quotation PDF for your customer</span>
 </div>
 
 <div class="wrapper">
@@ -249,48 +249,42 @@
   <aside class="panel">
 
     <!-- Company Info -->
-    <h2>🏢 Company Details</h2>
+    <h2>Your business details</h2>
     <label>Company Name</label>
     <input id="co-name" value="HB MACHINES" />
     <label>Address</label>
-    <textarea id="co-addr" rows="2">Vill. Kahanpura, Amloh, District Fatehgarh Sahib (Punjab) India</textarea>
-    <label>Phone / Email</label>
-    <input id="co-contact" value="+91-9878406868 | hbmachinesindia@gmail.com" />
+    <textarea id="co-addr" rows="2">Bihar, India</textarea>
+    <label>Phone and email</label>
+    <input id="co-contact" value="+91-9111111111 | abc@gmail.com" />
     <label>GSTIN</label>
-    <input id="co-gstin" value="03AJIPS9208D1ZA" />
+    <input id="co-gstin" value="10AABCD1234567890" />
 
     <hr class="sep">
 
     <!-- Buyer Info -->
-    <h2>👤 Buyer Details</h2>
-    <label>Buyer Name</label>
-    <input id="b-name" value="Mr. Akash" />
-    <label>Location</label>
+    <h2>Customer details</h2>
+    <label>Customer name</label>
+    <input id="b-name" value="Mr. Ajeet" />
+    <label>Customer location (city, state)</label>
     <input id="b-loc" value="Bihar, India" />
-    <label>Mobile</label>
-    <input id="b-mob" value="+91-9835226876" />
+    <label>Customer mobile number</label>
+    <input id="b-mob" value="+91-9111111111" />
 
     <hr class="sep">
 
     <!-- Quotation Meta -->
-    <h2>📋 Quotation Info</h2>
-    <label>Ref No.</label>
-    <input id="ref" value="HBM/02/2026/172/SS" />
+    <h2>Quotation details</h2>
+    <label>Quotation number</label>
+    <input id="ref" value="Q001" />
     <label>Date</label>
     <input id="q-date" type="date" />
-    <label>Subject / Plant Name</label>
-    <input id="q-subj" value="Cattle Feed Plant" />
-    <label>Capacity</label>
-    <input id="q-cap" value="1–2 TPH" />
-    <label>Power Required</label>
-    <input id="q-power" value="120.5 HP (90 KW) Approx." />
-    <label>Space Required</label>
-    <input id="q-space" value="75' × 15' × 30' approx." />
+    <label>Subject / project name</label>
+    <input id="q-subj" value="Mr. Ajeet's Test Plant" />
 
     <hr class="sep">
 
     <!-- Add Item -->
-    <h2>➕ Add Line Item</h2>
+    <h2>Add items to quotation</h2>
 
     <label>Section</label>
     <div class="section-tabs" id="section-tabs">
@@ -303,45 +297,43 @@
       <div class="section-tab" data-sec="Custom" onclick="selectSection(this)">+ Custom</div>
     </div>
     <div id="custom-sec-wrap" style="display:none; margin-top:6px;">
-      <input id="custom-sec-name" placeholder="Section name..." />
+      <input id="custom-sec-name" placeholder="Section name" />
     </div>
 
     <div class="item-form">
-      <label>Description</label>
-      <input id="i-desc" placeholder="e.g. Hammer Mill Bucket Elevator" />
-      <label>Model / Spec (optional)</label>
-      <input id="i-spec" placeholder="e.g. Model HBM A1, 15HP" />
+      <label>Item description</label>
+      <input id="i-desc" placeholder="Example: Hammer Mill Bucket Elevator" />
+      <label>Model / specification (optional)</label>
+      <input id="i-spec" placeholder="Example: Model HBM A1, 15HP" />
       <div class="row">
         <div>
-          <label>Qty</label>
+          <label>Quantity</label>
           <input id="i-qty" type="number" value="1" min="1" />
         </div>
         <div>
-          <label>Unit Price (₹)</label>
+          <label>Unit price (₹)</label>
           <input id="i-price" type="number" placeholder="0" />
         </div>
       </div>
       <div class="row">
         <div>
-          <label>HP (optional)</label>
+          <label>Motor HP (optional)</label>
           <input id="i-hp" placeholder="e.g. 15 HP" />
         </div>
         <div>
-          <label>GST Rate</label>
+          <label>GST rate (tax)</label>
           <select id="i-gst">
             <option value="5">5% (Machinery)</option>
             <option value="18" selected>18% (Motors/Electrical)</option>
-            <option value="12">12%</option>
-            <option value="0">0% (Exempt)</option>
           </select>
         </div>
       </div>
-      <button class="add-btn" onclick="addItem()">+ Add to Quotation</button>
+      <button class="add-btn" onclick="addItem()">Add item to quotation</button>
     </div>
 
     <hr class="sep">
 
-    <h2>📝 Terms (optional)</h2>
+    <h2>Terms and notes (optional)</h2>
     <textarea id="terms" rows="4" placeholder="Enter payment terms, delivery, warranty...">Payment: 60% advance, 40% before dispatch.
 Delivery: 45–60 days.
 Warranty: 1 year on manufacturing defects.
@@ -349,15 +341,15 @@ Validity: 30 days from date of quotation.</textarea>
 
     <hr class="sep">
     <div class="actions">
-      <button class="btn-pdf" onclick="exportPDF()">⬇ Export PDF</button>
-      <button class="btn-reset" onclick="resetAll()">Reset</button>
+      <button class="btn-pdf" onclick="exportPDF()">Download quotation (PDF)</button>
+      <button class="btn-reset" onclick="resetAll()">Clear all items</button>
     </div>
 
   </aside>
 
   <!-- RIGHT: PREVIEW -->
   <main class="preview-wrap">
-    <div class="preview-label">Live Preview</div>
+    <div class="preview-label">Quotation preview</div>
 
     <div id="quotation">
 
@@ -365,24 +357,21 @@ Validity: 30 days from date of quotation.</textarea>
       <div class="q-header">
         <div>
           <div class="q-logo" id="p-coname">HB MACHINES
-            <span id="p-coaddr">Vill. Kahanpura, Amloh, District Fatehgarh Sahib (Punjab) India</span>
+            <span id="p-coaddr">Bihar, India</span>
           </div>
           <div style="font-size:.75rem; margin-top:6px; opacity:.85;" id="p-cocontact">+91-9878406868 | hbmachinesindia@gmail.com</div>
-          <div style="font-size:.7rem; opacity:.7; margin-top:2px;" id="p-cogstin">GSTIN: 03AJIPS9208D1ZA</div>
+          <div style="font-size:.7rem; opacity:.7; margin-top:2px;" id="p-cogstin">GSTIN: 10AABCD1234567890</div>
         </div>
         <div class="q-meta">
           <strong>QUOTATION</strong>
-          <div>Ref No: <b id="p-ref">HBM/02/2026/172/SS</b></div>
+          <div>Ref No: <b id="p-ref">Q001</b></div>
           <div>Date: <b id="p-date">—</b></div>
         </div>
       </div>
 
       <!-- SUBJECT BAR -->
       <div class="q-subject">
-        <div class="q-subject-item"><label>Subject</label><span id="p-subj">Cattle Feed Plant</span></div>
-        <div class="q-subject-item"><label>Capacity</label><span id="p-cap">1–2 TPH</span></div>
-        <div class="q-subject-item"><label>Power Req.</label><span id="p-power">120.5 HP (90 KW)</span></div>
-        <div class="q-subject-item"><label>Space Req.</label><span id="p-space">75' × 15' × 30'</span></div>
+          <div class="q-subject-item"><label>Subject</label><span id="p-subj">Mr. Ajeet's Test Plant</span></div>
       </div>
 
       <!-- BODY -->
@@ -391,25 +380,25 @@ Validity: 30 days from date of quotation.</textarea>
         <!-- TO -->
         <div class="q-to">
           <strong>Bill To</strong>
-          <div class="q-to-name" id="p-bname">Mr. Akash</div>
+          <div class="q-to-name" id="p-bname">Mr. Ajeet</div>
           <div class="q-to-detail" id="p-bloc">Bihar, India</div>
-          <div class="q-to-detail" id="p-bmob">+91-9835226876</div>
+          <div class="q-to-detail" id="p-bmob">+91-9111111111</div>
         </div>
 
         <!-- SECTIONS TABLE -->
         <div id="sections-container">
           <div class="empty-state">
             <svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <p>Add items from the left panel to build your quotation</p>
+            <p>Add items on the left side to build this quotation</p>
           </div>
         </div>
 
         <!-- SUMMARY -->
         <div class="q-summary" id="q-summary" style="display:none;">
-          <div class="summary-box">
-            <div class="summary-row"><span>Subtotal (excl. GST)</span><span id="s-subtotal">₹0</span></div>
-            <div class="summary-row gst-row"><span>GST (blended)</span><span id="s-gst">₹0</span></div>
-            <div class="summary-row grand"><span>GRAND TOTAL</span><span id="s-grand">₹0</span></div>
+          <div class="summary-box" id="summary-box">
+            <div class="summary-row"><span>Subtotal (before GST)</span><span>₹0</span></div>
+            <div class="summary-row gst-row"><span>GST amounts</span><span>₹0</span></div>
+            <div class="summary-row grand"><span>Grand total (with GST)</span><span>₹0</span></div>
           </div>
         </div>
 
@@ -423,7 +412,7 @@ Validity: 30 days from date of quotation.</textarea>
 
       <!-- FOOTER -->
       <div class="q-footer">
-        <div><strong id="fp-coname">HB MACHINES</strong><span id="fp-coaddr">Khanna, Punjab – 147301</span></div>
+        <div><strong id="fp-coname">HB MACHINES</strong><span id="fp-coaddr">Bihar, India</span></div>
         <div style="text-align:right;">For <strong id="fp-coname2">HB MACHINES</strong><div style="margin-top:18px; border-top:1px solid rgba(255,255,255,.4); padding-top:6px;">Authorised Signatory</div></div>
       </div>
 
@@ -433,7 +422,31 @@ Validity: 30 days from date of quotation.</textarea>
 
 <script>
 // ── STATE ──
-let items = [];       // { sec, desc, spec, qty, price, hp, gst }
+let items = [       // { sec, desc, spec, qty, price, hp, gst }
+  // Grinding Section
+  { id: 1, sec: 'Grinding Section', desc: 'Hammer mill', spec: 'Model HBM-20, 20 TPH', qty: 1, price: 350000, hp: '60 HP', gst: 5 },
+  { id: 2, sec: 'Grinding Section', desc: 'Feeding conveyor', spec: 'With hopper and magnets', qty: 1, price: 120000, hp: '5 HP', gst: 18 },
+
+  // Mixing Section
+  { id: 11, sec: 'Mixing Section', desc: 'Ribbon mixer', spec: '1000 kg per batch', qty: 1, price: 280000, hp: '25 HP', gst: 18 },
+  { id: 12, sec: 'Mixing Section', desc: 'Batch weighing hopper', spec: 'Mild steel construction', qty: 1, price: 90000, hp: '', gst: 5 },
+
+  // Pelleting Section
+  { id: 21, sec: 'Pelleting Section', desc: 'Pellet mill', spec: '16 mm die, 3–5 TPH', qty: 1, price: 650000, hp: '75 HP', gst: 18 },
+  { id: 22, sec: 'Pelleting Section', desc: 'Conditioner', spec: 'Steam conditioning unit', qty: 1, price: 160000, hp: '7.5 HP', gst: 18 },
+
+  // Cooling Section
+  { id: 31, sec: 'Cooling Section', desc: 'Counter flow cooler', spec: 'Suitable for 5 TPH plant', qty: 1, price: 300000, hp: '5 HP', gst: 5 },
+  { id: 32, sec: 'Cooling Section', desc: 'Vibratory sieve', spec: 'With fines separation', qty: 1, price: 140000, hp: '3 HP', gst: 18 },
+
+  // Installation
+  { id: 41, sec: 'Installation', desc: 'Erection and commissioning', spec: 'Complete plant installation', qty: 1, price: 250000, hp: '', gst: 18 },
+  { id: 42, sec: 'Installation', desc: 'Cable laying and termination', spec: 'As per site requirement', qty: 1, price: 80000, hp: '', gst: 18 },
+
+  // Accessories
+  { id: 51, sec: 'Accessories', desc: 'Control panel', spec: 'Fully automatic with PLC', qty: 1, price: 400000, hp: '', gst: 18 },
+  { id: 52, sec: 'Accessories', desc: 'Spare die and rollers', spec: 'One set for pellet mill', qty: 1, price: 220000, hp: '', gst: 18 },
+];
 let activeSec = 'Grinding Section';
 
 // Set default date
@@ -450,12 +463,11 @@ const binds = [
   ['b-mob',     ['p-bmob']],
   ['ref',       ['p-ref']],
   ['q-subj',    ['p-subj']],
-  ['q-cap',     ['p-cap']],
-  ['q-power',   ['p-power']],
-  ['q-space',   ['p-space']],
 ];
 binds.forEach(([src, dests]) => {
-  document.getElementById(src).addEventListener('input', function() {
+  const srcEl = document.getElementById(src);
+  if (!srcEl) return;
+  srcEl.addEventListener('input', function() {
     dests.forEach(d => { const el = document.getElementById(d); if(el) el.textContent = this.value; });
   });
 });
@@ -482,7 +494,7 @@ function addItem() {
     ? (document.getElementById('custom-sec-name').value.trim() || 'Custom Section')
     : activeSec;
   const desc = document.getElementById('i-desc').value.trim();
-  if (!desc) { alert('Please enter a description.'); return; }
+  if (!desc) { alert('Please enter the item description.'); return; }
   const price = parseFloat(document.getElementById('i-price').value) || 0;
   const qty   = parseInt(document.getElementById('i-qty').value) || 1;
   items.push({
@@ -512,7 +524,7 @@ function delItem(id) {
 function renderQuotation() {
   const container = document.getElementById('sections-container');
   if (!items.length) {
-    container.innerHTML = `<div class="empty-state"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><p>Add items from the left panel to build your quotation</p></div>`;
+    container.innerHTML = `<div class="empty-state"><svg width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg><p>Add items on the left side to build this quotation</p></div>`;
     document.getElementById('q-summary').style.display = 'none';
     return;
   }
@@ -527,6 +539,7 @@ function renderQuotation() {
   let html = '';
   let srNo = 1;
   let totalBase = 0, totalGstAmt = 0;
+  const gstTotals = {};
 
   Object.entries(groups).forEach(([sec, rows]) => {
     let secBase = 0, secGst = 0;
@@ -535,6 +548,8 @@ function renderQuotation() {
       const base = r.qty * r.price;
       const gstAmt = base * r.gst / 100;
       secBase += base; secGst += gstAmt;
+      if (!gstTotals[r.gst]) gstTotals[r.gst] = 0;
+      gstTotals[r.gst] += gstAmt;
       rowsHtml += `
         <tr>
           <td>${srNo++}</td>
@@ -577,9 +592,21 @@ function renderQuotation() {
 
   // Summary
   const grand = totalBase + totalGstAmt;
-  document.getElementById('s-subtotal').textContent = '₹' + fmt(totalBase);
-  document.getElementById('s-gst').textContent      = '₹' + fmt(totalGstAmt);
-  document.getElementById('s-grand').textContent    = '₹' + fmt(grand);
+  const summaryBox = document.getElementById('summary-box');
+  let gstRows = '';
+  Object.keys(gstTotals)
+    .sort((a, b) => parseFloat(a) - parseFloat(b))
+    .forEach(rate => {
+      const amt = gstTotals[rate];
+      if (!amt) return;
+      gstRows += `<div class="summary-row gst-row"><span>GST ${rate}% amount</span><span>₹${fmt(amt)}</span></div>`;
+    });
+
+  summaryBox.innerHTML = `
+    <div class="summary-row"><span>Subtotal (before GST)</span><span>₹${fmt(totalBase)}</span></div>
+    ${gstRows}
+    <div class="summary-row grand"><span>Grand total (with GST)</span><span>₹${fmt(grand)}</span></div>
+  `;
   document.getElementById('q-summary').style.display = 'flex';
 
   renderTerms();
@@ -600,7 +627,7 @@ function fmt(n) {
 }
 
 function resetAll() {
-  if (!confirm('Reset all items?')) return;
+  if (!confirm('Do you want to clear all items?')) return;
   items = [];
   renderQuotation();
 }
@@ -628,7 +655,7 @@ function exportPDF() {
 }
 
 // Initial render
-renderTerms();
+renderQuotation();
 </script>
 </body>
 </html>
